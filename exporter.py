@@ -66,7 +66,14 @@ def extract_field(row, field_name):
         span = div.find("span", class_="date_read_value")
         return span.get_text(strip=True) if span else None
 
+    # Special case for title
+    if field_class == "field title":
+        # Get only the direct text of the anchor tag, excluding the nested span if it exists
+        # this is removing the series name from the title
+        return div.a.contents[0].strip()
+
     value = div.get_text(strip=True)
+    # Special case for rating
     if field_class == "field rating":
         value = RATING_MAPPER.get(value, value)
 
@@ -106,8 +113,5 @@ def save_to_csv(books):
 all_books = []
 for i in range(1, get_last_page() + 1):
     all_books.extend(get_book_data(i))
-
-for key, value in all_books[0].items():
-    print(f"{key}: {value}")
 
 save_to_csv(all_books)
