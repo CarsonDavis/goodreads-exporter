@@ -45,9 +45,8 @@ def get_last_page():
 
     response = requests.get(BASE_URL.format(USERNAME, 1))
     soup = BeautifulSoup(response.content, "html.parser")
-    pagination_links = soup.select(
-        "#reviewPagination a:not(.next_page)"
-    )  # Select all anchor tags inside the div excluding the "next" link
+    # Select all anchor tags inside the div excluding the "next" link
+    pagination_links = soup.select("#reviewPagination a:not(.next_page)")
     return int(pagination_links[-1].text)
 
 
