@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
+from datetime import date
 
 BASE_URL = "https://www.goodreads.com/review/list/142587487-random-programmer?page={}&print=true&shelf=read&view=table"
 
@@ -14,12 +16,11 @@ FIELDS = {
     "num_ratings": "num_ratings",
     "date_pub": "date_pub",
     "date_pub_edition": "date_pub_edition",
-    "rating": "rating",  # this isn't working
-    "shelves": "shelves",
+    "rating": "rating",
+    # "shelves": "shelves", # this isn't working
     "review": "review",
     "notes": "notes",
     "comments": "comments",
-    # "votes": "votes",
     "read_count": "read_count",
     "date_started": "date_started",
     "date_read": "date_read",
@@ -87,14 +88,23 @@ def get_book_data(page_number):
     return books
 
 
-# Assuming there are 10 pages to loop through
-last_page = get_last_page()
-all_books = []
-for i in range(1, last_page + 1):
-    all_books.extend(get_book_data(i))
+def save_to_csv(books):
+    todays_date = date.today().strftime(
+        "%Y%m%d"
+    )  # This will format today's date as 20230102
+    filename = f"goodreads_export_{todays_date}.csv"
+    with open(filename, "w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=list(FIELDS.keys()))
+        writer.writeheader()
+        for book in books:
+            writer.writerow(book)
 
-# for book in all_books:
-#     print(", ".join([f"{key.capitalize()}: {value}" for key, value in book.items()]))
+
+all_books = []
+for i in range(1, get_last_page() + 1):
+    all_books.extend(get_book_data(i))
 
 for key, value in all_books[0].items():
     print(f"{key}: {value}")
+
+save_to_csv(all_books)
