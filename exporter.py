@@ -36,6 +36,17 @@ RATING_MAPPER = {
 }
 
 
+def get_last_page():
+    """this finds the number of pages a user needs to extract"""
+
+    response = requests.get(BASE_URL.format(1))
+    soup = BeautifulSoup(response.content, "html.parser")
+    pagination_links = soup.select(
+        "#reviewPagination a:not(.next_page)"
+    )  # Select all anchor tags inside the div excluding the "next" link
+    return int(pagination_links[-1].text)
+
+
 def field_converter(field_name):
     """adds the word field in front of the field name"""
     return f"field {field_name}"
@@ -77,8 +88,9 @@ def get_book_data(page_number):
 
 
 # Assuming there are 10 pages to loop through
+last_page = get_last_page()
 all_books = []
-for i in range(1, 2):  # Replace 11 with the actual number of pages + 1
+for i in range(1, last_page + 1):
     all_books.extend(get_book_data(i))
 
 # for book in all_books:
