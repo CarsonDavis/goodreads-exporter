@@ -1,4 +1,5 @@
 # goodreads-exporter
+## What?
 Simple script to export goodreads data as csv.
 
 ## Why?
@@ -7,8 +8,9 @@ Doesn't goodreads already have csv export?
 yes...but it has a known bug for about 4 years where it fails to export the read date, and it seems like the staff have no plans to fix it.
 
 ## How to Run
-1. Edit the config.py with your username.
-2. Run exporter.py
+1. Make a python env with the requirements
+2. Edit the config.py with your username
+3. Run exporter.py
 
 This will make a csv, `goodreads_export-YYYYMMDD.csv`
 
