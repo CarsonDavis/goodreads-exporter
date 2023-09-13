@@ -2,8 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 from datetime import date
+from config import username as USERNAME
 
-BASE_URL = "https://www.goodreads.com/review/list/142587487-random-programmer?page={}&print=true&shelf=read&view=table"
+BASE_URL = (
+    "https://www.goodreads.com/review/list/{}?page={}&print=true&shelf=read&view=table"
+)
 
 FIELDS = {
     "title": "title",
@@ -40,7 +43,7 @@ RATING_MAPPER = {
 def get_last_page():
     """this finds the number of pages a user needs to extract"""
 
-    response = requests.get(BASE_URL.format(1))
+    response = requests.get(BASE_URL.format(USERNAME, 1))
     soup = BeautifulSoup(response.content, "html.parser")
     pagination_links = soup.select(
         "#reviewPagination a:not(.next_page)"
@@ -71,7 +74,7 @@ def extract_field(row, field_name):
 
 
 def get_book_data(page_number):
-    response = requests.get(BASE_URL.format(page_number))
+    response = requests.get(BASE_URL.format(USERNAME, page_number))
     soup = BeautifulSoup(response.content, "html.parser")
 
     books = []
@@ -91,8 +94,8 @@ def get_book_data(page_number):
 def save_to_csv(books):
     todays_date = date.today().strftime(
         "%Y%m%d"
-    )  # This will format today's date as 20230102
-    filename = f"goodreads_export_{todays_date}.csv"
+    )  # This will format today's date as YYYYMMDD
+    filename = f"goodreads_export-{todays_date}.csv"
     with open(filename, "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=list(FIELDS.keys()))
         writer.writeheader()
