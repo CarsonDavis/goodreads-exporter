@@ -11,24 +11,24 @@ BASE_URL = (
 FIELDS = {
     "title": "title",
     "author": "author",
-    "isbn": "isbn",
-    "isbn13": "isbn13",
-    "asin": "asin",
-    "num_pages": "num_pages",
+    "rating": "rating",
     "avg_rating": "avg_rating",
     "num_ratings": "num_ratings",
-    "date_pub": "date_pub",
-    "date_pub_edition": "date_pub_edition",
-    "rating": "rating",
-    # "shelves": "shelves", # this isn't working
-    "review": "review",
-    "notes": "notes",
-    "comments": "comments",
-    "read_count": "read_count",
     "date_started": "date_started",
     "date_read": "date_read",
     "date_added": "date_added",
+    "date_pub": "date_pub",
+    "date_pub_edition": "date_pub_edition",
+    "num_pages": "num_pages",
+    # "shelves": "shelves", # this isn't working
+    # "notes": "notes",
+    "isbn": "isbn",
+    "isbn13": "isbn13",
+    "asin": "asin",
+    "read_count": "read_count",
     "owned": "owned",
+    "comments": "comments",
+    "review": "review",
 }
 
 RATING_MAPPER = {
