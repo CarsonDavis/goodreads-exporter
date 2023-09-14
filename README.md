@@ -17,6 +17,5 @@ This will make a csv, `goodreads_export-YYYYMMDD.csv`
 ## Known Limitations
 This isn't meant to fully replace the goodreads exporter, just fill in the data that it misses.
 - Since you aren't logged it, it won't export private notes.
-- It doesn't export the full review, since this doesn't show on the print screen
 
 This was mostly just a quick script to make sure I had dates backed up, but if there is demand for more functionality feel free to leave an issue.
