@@ -40,7 +40,7 @@ RATING_MAPPER = {
 }
 
 
-def get_last_page():
+def get_last_page() -> int:
     """this finds the number of pages a user needs to extract"""
 
     response = requests.get(BASE_URL.format(USERNAME, 1))
@@ -50,46 +50,52 @@ def get_last_page():
     return int(pagination_links[-1].text)
 
 
-def field_converter(field_name):
-    """adds the word field in front of the field name"""
+def field_converter(field_name: str) -> str:
+    """adds the word 'field' in front of the field name"""
     return f"field {field_name}"
 
 
-def extract_field(row, field_name):
-    """gets the value of a desired field and handles a few special cases"""
+def extract_date_read(div: BeautifulSoup) -> str:
+    span = div.find("span", class_="date_read_value")
+    return span.get_text(strip=True) if span else None
+
+
+def extract_title(div: BeautifulSoup) -> str:
+    return div.a.contents[0].strip()
+
+
+def extract_review(div: BeautifulSoup) -> str:
+    spans = div.find_all("span")
+    if len(spans) > 1:
+        return spans[1].get_text(strip=True)
+    else:
+        return spans[0].get_text(strip=True)
+
+
+def extract_rating(div: BeautifulSoup) -> str:
+    value = div.get_text(strip=True)
+    return RATING_MAPPER.get(value, value)
+
+
+def extract_field(row: BeautifulSoup, field_name: str) -> str:
+    """Extracts the value of a desired field based on its type."""
     field_class = field_converter(field_name)
     div = row.find("td", class_=field_class).div
 
-    # Special case for date_read as it has an additional span element
-    if field_class == "field date_read":
-        span = div.find("span", class_="date_read_value")
-        return span.get_text(strip=True) if span else None
+    field_extractors = {
+        "field date_read": extract_date_read,
+        "field title": extract_title,
+        "field review": extract_review,
+        "field rating": extract_rating,
+    }
 
-    # Special case for title
-    if field_class == "field title":
-        # Get only the direct text of the anchor tag, excluding the nested span if it exists
-        # this is removing the series name from the title
-        return div.a.contents[0].strip()
-
-    # Special case for review
-    if field_class == "field review":
-        spans = div.find_all("span")
-
-        if len(spans) > 1:
-            content = spans[1].get_text(strip=True)
-        else:
-            content = spans[0].get_text(strip=True)
-        return content
-
-    value = div.get_text(strip=True)
-    # Special case for rating
-    if field_class == "field rating":
-        value = RATING_MAPPER.get(value, value)
-
-    return value
+    if field_class in field_extractors:
+        return field_extractors[field_class](div)
+    else:
+        return div.get_text(strip=True)
 
 
-def get_book_data(page_number):
+def get_book_data(page_number: int) -> list:
     response = requests.get(BASE_URL.format(USERNAME, page_number))
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -107,7 +113,7 @@ def get_book_data(page_number):
     return books
 
 
-def save_to_csv(books):
+def save_to_csv(books: list[dict[str, str]]) -> None:
     todays_date = date.today().strftime(
         "%Y%m%d"
     )  # This will format today's date as YYYYMMDD
