@@ -71,6 +71,16 @@ def extract_field(row, field_name):
         # this is removing the series name from the title
         return div.a.contents[0].strip()
 
+    # Special case for review
+    if field_class == "field review":
+        spans = div.find_all("span")
+
+        if len(spans) > 1:
+            content = spans[1].get_text(strip=True)
+        else:
+            content = spans[0].get_text(strip=True)
+        return content
+
     value = div.get_text(strip=True)
     # Special case for rating
     if field_class == "field rating":
