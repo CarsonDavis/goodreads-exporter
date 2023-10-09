@@ -23,26 +23,26 @@ BASE_URL = "https://www.goodreads.com/review/list/{}?page={}&print=true&shelf=re
 
 FIELDS = {
     # "name to print": "value in html"
-    "Title": "title",
-    "Author": "author",
-    "My Rating": "rating",
-    "Average Rating": "avg_rating",
-    "Num Ratings": "num_ratings",
-    "Date Started": "date_started",
-    "Date Read": "date_read",
-    "Date Added": "date_added",
-    "Original Publication Year": "date_pub",
-    "Year Published": "date_pub_edition",
-    "Number of Pages": "num_pages",
-    # "Shelves": "shelves", # this isn't working
-    # "Notes": "notes",
-    "ISBN": "isbn",
-    "ISBN13": "isbn13",
-    "Asin": "asin",
-    "Read Count": "read_count",
-    "Owned Copies": "owned",
-    "Comments": "comments",
-    "My Review": "review",
+    "Title": "field title",
+    "Author": "field author",
+    "My Rating": "field rating",
+    "Average Rating": "field avg_rating",
+    "Num Ratings": "field num_ratings",
+    "Date Started": "field date_started",
+    "Date Read": "field date_read",
+    "Date Added": "field date_added",
+    "Original Publication Year": "field date_pub",
+    "Year Published": "field date_pub_edition",
+    "Number of Pages": "field num_pages",
+    # "Shelves": "field shelves", # this isn't working
+    # "Notes": "field notes",
+    "ISBN": "field isbn",
+    "ISBN13": "field isbn13",
+    "Asin": "field asin",
+    "Read Count": "field read_count",
+    "Owned Copies": "field owned",
+    "Comments": "field comments",
+    "My Review": "field review",
 }
 
 RATING_MAPPER = {
@@ -64,9 +64,12 @@ def get_last_page() -> int:
     return int(pagination_links[-1].text)
 
 
-def field_converter(field_name: str) -> str:
-    """adds the word 'field' in front of the field name"""
-    return f"field {field_name}"
+def date_reformatter(date_str: str) -> str:
+    try:
+        date_obj = parser.parse(date_str)
+        return date_obj.strftime("%Y/%m/%d")
+    except ValueError:  # If parsing fails
+        return None
 
 
 def extract_date_read(div: BeautifulSoup) -> str:
@@ -77,11 +80,7 @@ def extract_date_read(div: BeautifulSoup) -> str:
     span = div.find("span", class_="date_read_value")
     if span:
         date_str = span.get_text(strip=True)
-        try:
-            date_obj = parser.parse(date_str)
-            return date_obj.strftime("%Y/%m/%d")
-        except ValueError:  # If parsing fails
-            return None
+        return date_reformatter(date_str)
     else:
         return None
 
@@ -103,22 +102,27 @@ def extract_rating(div: BeautifulSoup) -> str:
     return RATING_MAPPER.get(value, value)
 
 
-def extract_field(row: BeautifulSoup, field_name: str) -> str:
+def extract_field(row: BeautifulSoup, field_class: str) -> str:
     """Extracts the value of a desired field based on its type."""
-    field_class = field_converter(field_name)
     div = row.find("td", class_=field_class).div
 
-    field_extractors = {
+    # these fields needs some custom processing
+    wierd_field_to_extractor_mapping = {
         "field date_read": extract_date_read,
         "field title": extract_title,
         "field review": extract_review,
         "field rating": extract_rating,
     }
 
-    if field_class in field_extractors:
-        return field_extractors[field_class](div)
+    if field_class in wierd_field_to_extractor_mapping:
+        # process the wierd fields
+        return wierd_field_to_extractor_mapping[field_class](div)
     else:
-        return div.get_text(strip=True)
+        # process the rest
+        value = div.get_text(strip=True)
+        if "date" in field_class:
+            value = date_reformatter(value)
+        return value
 
 
 def get_book_data(page_number: int) -> list:
