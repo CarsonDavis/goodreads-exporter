@@ -7,31 +7,42 @@ from dateutil import parser
 
 from config import username as USERNAME
 
-BASE_URL = (
-    "https://www.goodreads.com/review/list/{}?page={}&print=true&shelf=read&view=table"
-)
+BASE_URL = "https://www.goodreads.com/review/list/{}?page={}&print=true&shelf=read&view=table"
+
+# TODO: The official goodreads export has these fields, but I haven't mapped them yet
+# Book Id
+# Author l-f
+# Additional Authors
+# Publisher
+# Binding
+# Bookshelves
+# Bookshelves with positions
+# Exclusive Shelf
+# Spoiler
+# Private Notes
 
 FIELDS = {
-    "title": "title",
-    "author": "author",
-    "rating": "rating",
-    "avg_rating": "avg_rating",
-    "num_ratings": "num_ratings",
-    "date_started": "date_started",
-    "date_read": "date_read",
-    "date_added": "date_added",
-    "date_pub": "date_pub",
-    "date_pub_edition": "date_pub_edition",
-    "num_pages": "num_pages",
-    # "shelves": "shelves", # this isn't working
-    # "notes": "notes",
-    "isbn": "isbn",
-    "isbn13": "isbn13",
-    "asin": "asin",
-    "read_count": "read_count",
-    "owned": "owned",
-    "comments": "comments",
-    "review": "review",
+    # "name to print": "value in html"
+    "Title": "title",
+    "Author": "author",
+    "My Rating": "rating",
+    "Average Rating": "avg_rating",
+    "Num Ratings": "num_ratings",
+    "Date Started": "date_started",
+    "Date Read": "date_read",
+    "Date Added": "date_added",
+    "Original Publication Year": "date_pub",
+    "Year Published": "date_pub_edition",
+    "Number of Pages": "num_pages",
+    # "Shelves": "shelves", # this isn't working
+    # "Notes": "notes",
+    "ISBN": "isbn",
+    "ISBN13": "isbn13",
+    "Asin": "asin",
+    "Read Count": "read_count",
+    "Owned Copies": "owned",
+    "Comments": "comments",
+    "My Review": "review",
 }
 
 RATING_MAPPER = {
@@ -129,10 +140,9 @@ def get_book_data(page_number: int) -> list:
 
 
 def save_to_csv(books: list[dict[str, str]]) -> None:
-    todays_date = date.today().strftime(
-        "%Y%m%d"
-    )  # This will format today's date as YYYYMMDD
+    todays_date = date.today().strftime("%Y%m%d")  # This will format today's date as YYYYMMDD
     filename = f"goodreads_export-{todays_date}.csv"
+
     with open(filename, "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=list(FIELDS.keys()))
         writer.writeheader()
