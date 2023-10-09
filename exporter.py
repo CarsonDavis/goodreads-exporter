@@ -1,7 +1,10 @@
-import requests
-from bs4 import BeautifulSoup
 import csv
 from datetime import date
+
+import requests
+from bs4 import BeautifulSoup
+from dateutil import parser
+
 from config import username as USERNAME
 
 BASE_URL = (
@@ -56,8 +59,20 @@ def field_converter(field_name: str) -> str:
 
 
 def extract_date_read(div: BeautifulSoup) -> str:
+    """
+    finds the date if it exists and converts it to the same format
+    as the official goodreads export YYYY/MM/DD
+    """
     span = div.find("span", class_="date_read_value")
-    return span.get_text(strip=True) if span else None
+    if span:
+        date_str = span.get_text(strip=True)
+        try:
+            date_obj = parser.parse(date_str)
+            return date_obj.strftime("%Y/%m/%d")
+        except ValueError:  # If parsing fails
+            return None
+    else:
+        return None
 
 
 def extract_title(div: BeautifulSoup) -> str:
