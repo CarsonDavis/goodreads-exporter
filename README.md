@@ -5,7 +5,7 @@ Simple script to export goodreads data as csv.
 ## Why?
 Doesn't goodreads already have csv export?
 
-yes...but it has a known bug for about 4 years where it fails to export the read date, and it seems like the staff have no plans to fix it.
+yes...but it has a known bug for about 4 years where it fails to export the read date, and it seems like the staff have no plans to fix it. I've also noticed that emojis seem to cause reviews to be truncated.
 
 ## How to Run
 1. Make a python env with the requirements
